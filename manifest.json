@@ -1,0 +1,85 @@
+{
+  "specVersion": "1.1",
+  "type": "stdin",
+  "name": "dp-it-prassi-detect",
+  "version": "0.1.0",
+  "description": "Turns a prassi Source config (AdE portal month pages, DocTrib interpelli month windows) into catalog items. No network. Proc-protocol v1.1: spec, check, run.",
+  "author": "open-lex-it",
+  "authentication": false,
+  "actions": {
+    "spec": {
+      "description": "Return the config and output JSON schemas (Proc-protocol 1.1).",
+      "input": { "type": "object", "properties": {} },
+      "output": {
+        "type": "object",
+        "properties": {
+          "configSchema": { "type": "object" },
+          "outputSchema": { "type": "object" },
+          "protocol": { "type": "string", "const": "1.1" }
+        }
+      }
+    },
+    "check": {
+      "description": "Test Source: validates the config (types, year range, months, sample filters). No request is made; grab checks that a month page or window exists.",
+      "input": { "type": "object", "properties": {} },
+      "output": { "type": "object", "properties": { "ok": { "type": "boolean" } } }
+    },
+    "run": {
+      "description": "Items are the month pages or windows whose key is not in state.seen; a refreshToken change re-emits every item.",
+      "input": {
+        "type": "object",
+        "properties": {
+          "tipologie": { "type": "array", "items": { "type": "string" } },
+          "tipoEstremi": { "type": "array", "items": { "type": "string" } },
+          "ente": { "type": "string" },
+          "annoFrom": { "type": "integer" },
+          "annoTo": { "type": "integer" },
+          "mesi": { "type": "array", "items": { "type": "integer" } },
+          "skipBefore": { "type": "string" },
+          "only": { "type": "array" },
+          "maxDocs": { "type": "integer" },
+          "maxItems": { "type": "integer" },
+          "baseUrl": { "type": "string" },
+          "delaySeconds": { "type": "number" },
+          "verifyTls": { "type": "boolean" },
+          "refreshToken": { "type": ["string", "null"] },
+          "state": {
+            "type": ["object", "null"],
+            "properties": { "seen": { "type": "array", "items": { "type": "string" } } }
+          }
+        }
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "items": { "type": "array" },
+          "state": { "type": "object" },
+          "metrics": { "type": "object" },
+          "checks": { "type": "array" }
+        }
+      }
+    },
+    "execute": {
+      "description": "Alias of run for Proc-protocol v1 callers (ProcMon mandates execute); same input and result as run.",
+      "input": { "type": "object", "properties": {} },
+      "output": {
+        "type": "object",
+        "properties": {
+          "items": { "type": "array" },
+          "state": { "type": "object" },
+          "metrics": { "type": "object" },
+          "checks": { "type": "array" }
+        }
+      }
+    },
+    "terminate": {
+      "description": "Stop and clean up.",
+      "input": { "type": "object", "properties": {} }
+    }
+  },
+  "execution": {
+    "timeout": 600,
+    "memoryLimit": "256Mi",
+    "cpuLimit": "0.5"
+  }
+}
